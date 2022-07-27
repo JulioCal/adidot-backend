@@ -15,16 +15,21 @@ class DocumentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {   
+    {
         $documents = document::select("*")
-        ->when($request->has('owner'), 
-        function ($query) use ($request) {
-            $query->where('trabajador_cedula', $request->owner)->orWhere('permit', 'public');
-        })
-        ->when($request->has('permit') == 'public', 
-        function ($query) use ($request) {
-            $query->where('permit', $request->permit);})
-        ->get();
+            ->when(
+                $request->has('owner'),
+                function ($query) use ($request) {
+                    $query->where('trabajador_cedula', $request->owner)->orWhere('permit', 'public');
+                }
+            )
+            ->when(
+                $request->has('permit') == 'public',
+                function ($query) use ($request) {
+                    $query->where('permit', $request->permit);
+                }
+            )
+            ->get();
 
         return $documents;
     }
@@ -43,22 +48,23 @@ class DocumentController extends Controller
             'title' => 'required',
             'trabajador_cedula' => 'required'
         ]);
-        try{
-            $validator = Validator::make($request->all(),[ 
+        try {
+            $validator = Validator::make($request->all(), [
                 'file' => 'required|mimes:doc,docx,zip,pdf,txt,csv,png,jpg,jpeg|max:320480',
-          ]);   
-          if($validator->fails()) {          
-            return response()->json(['error'=>$validator->errors()], 401);                        
-         }  
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 401);
+            }
             $document = new document;
             $document->fill($request->all());
-            $path = $request->file('file')->store('public/documentos');
-            $document->file = $path;
+            $imageName = time() . '.' . $request->file('file')->getClientOriginalExtension();
+            $request->file('file')->move(public_path('/documentos'), $imageName);
+            $document->file = $imageName;
             $document->save();
             return response()->json([
                 'message' => 'Documento publicado'
             ]);
-            }catch(\PDOException $e){
+        } catch (\PDOException $e) {
             return response()->json([
                 'message' => $e
             ], 500);
@@ -87,30 +93,30 @@ class DocumentController extends Controller
      */
     public function update(Request $request, document $document)
     {
-        
+
         $request->validate([
             'title' => 'required',
             'permit' => 'required'
         ]);
-        try{
-            $validator = Validator::make($request->all(),[ 
+        try {
+            $validator = Validator::make($request->all(), [
                 'file' => 'required|mimes:doc,docx,pdf,txt,csv,png,jpg,jpeg|max:320480',
-          ]);   
-          if($validator->fails()) {          
-            return response()->json(['error'=>$validator->errors()], 401);}  
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 401);
+            }
             $path = $request->file('file')->store('public/documentos');
             $document->file = $path;
             $document->fill($request->all());
             $document->save();
 
             return response()->json([
-                'message'=> 'Publicacion Actualizada.'
+                'message' => 'Publicacion Actualizada.'
             ]);
-
-        }catch(\PDOException $e){
-              return response()->json([
-                'message'=>$e
-            ],500);
+        } catch (\PDOException $e) {
+            return response()->json([
+                'message' => $e
+            ], 500);
         }
     }
 
@@ -127,11 +133,18 @@ class DocumentController extends Controller
         $result->delete();
 
         return response()->json([
-                'message'=>'Deleted Successfully!!'
-            ]);
+            'message' => 'Deleted Successfully!!'
+        ]);
     }
 
-    public function getFile(Request $path) {
-      return response()->download($path->file);
+    public function getFile(Request $path)
+    {
+        $file = public_path() . '/documentos/' . $path->file;
+        $extension = pathinfo($file, PATHINFO_EXTENSION);
+        if (file_exists($file)) {
+            return response()->download($file, $path->title . '.' . $extension);
+        } else {
+            return response()->json(['message' => $file], 500);
+        }
     }
 }
