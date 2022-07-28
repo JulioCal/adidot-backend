@@ -42,23 +42,28 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
+        $imageName = '';
         $request->validate([
-            'file' => 'required',
             'owner' => 'required',
             'title' => 'required',
             'trabajador_cedula' => 'required'
         ]);
         try {
-            $validator = Validator::make($request->all(), [
-                'file' => 'required|mimes:doc,docx,zip,pdf,txt,csv,png,jpg,jpeg|max:320480',
-            ]);
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 401);
-            }
+            $request->whenHas(
+                'file',
+                function () use ($request) {
+                    $validator = Validator::make($request->all(), [
+                        'file' => 'mimes:doc,docx,xls,xlsx,ppt,pptx,zip,pdf,txt,csv,png,jpg,jpeg|max:320480',
+                    ]);
+                    if ($validator->fails()) {
+                        return response()->json(['error' => $validator->errors()], 401);
+                    }
+                    $imageName = time() . '.' . $request->file('file')->getClientOriginalExtension();
+                    $request->file('file')->move(public_path('/documentos'), $imageName);
+                }
+            );
             $document = new document;
             $document->fill($request->all());
-            $imageName = time() . '.' . $request->file('file')->getClientOriginalExtension();
-            $request->file('file')->move(public_path('/documentos'), $imageName);
             $document->file = $imageName;
             $document->save();
             return response()->json([

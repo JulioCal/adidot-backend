@@ -16,5 +16,7 @@ class document extends Model
         'trabajador_cedula',
         'permit',
         'owner',
-        'comments'];
+        'comments',
+        'grupos'
+    ];
 }

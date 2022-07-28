@@ -12,7 +12,7 @@ class TrabajadorController extends Controller
 {
     public function authenticate(Request $request)
     {
-        if (!Auth::attempt($request->only('cedula', 'password'))){
+        if (!Auth::attempt($request->only('cedula', 'password'))) {
             return response()->json([
                 'message' => 'Invalid access credentials'
             ], 401);
@@ -31,12 +31,14 @@ class TrabajadorController extends Controller
         ]);
     }
 
-    public function dataUser(Request $request){
+    public function dataUser(Request $request)
+    {
         //devuelve la información del usuario
         return $request->user();
     }
 
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         $request->user()->currentAccessToken()->delete();
         return response()->json([
             'message' => 'logged out.'
@@ -48,9 +50,15 @@ class TrabajadorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $workers = trabajador::get();
+        $workers = trabajador::select('*')
+            ->when(
+                $request->has('gerencia'),
+                function ($query) use ($request) {
+                    $query->where('gerencia', $request->gerencia);
+                }
+            )->get();
 
         return $workers;
     }
@@ -73,7 +81,7 @@ class TrabajadorController extends Controller
             'sexo' => 'required'
         ]);
 
-        try{
+        try {
             $hashed = Hash::make($request->password);
 
             $request->merge([
@@ -85,10 +93,10 @@ class TrabajadorController extends Controller
             return response()->json([
                 'message' => 'completado. '
             ]);
-            }catch(\PDOException $e){
+        } catch (\PDOException $e) {
             return response()->json([
-                'message'=> $e
-            ],500);
+                'message' => $e
+            ], 500);
         }
     }
 
@@ -98,7 +106,8 @@ class TrabajadorController extends Controller
      * @param  \App\Models\trabajador  $trabajador
      * @return \Illuminate\Http\Response
      */
-    public function show ($value) {
+    public function show($value)
+    {
 
         $trabajador = trabajador::where('cedula', $value)->firstOrFail();
         return $trabajador;
@@ -112,7 +121,7 @@ class TrabajadorController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $value)
-    {   
+    {
 
 
         $request->validate([
@@ -124,23 +133,23 @@ class TrabajadorController extends Controller
             'sexo' => 'required'
         ]);
 
-        try{
-            
+        try {
+
             $hashed = Hash::make($request->password);
             $request->merge([
                 'password' => $hashed
             ]);
-/*          $trabajador = trabajador::where('cedula', $value)->firstOrFail();
+            /*          $trabajador = trabajador::where('cedula', $value)->firstOrFail();
             $trabajador->fill($request->all());
             //$trabajador->save();
             return response()->json([
                 $trabajador
             ]);*/
             return $request;
-        }catch(\Exception $e){
-              return response()->json([
-                'message'=> $e
-            ],500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e
+            ], 500);
         }
     }
 
@@ -151,18 +160,18 @@ class TrabajadorController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($cedula)
-    {   
+    {
         $trabajador = trabajador::where('cedula', $cedula)->firstOrFail();
         try {
-        $trabajador->delete();
+            $trabajador->delete();
 
-        return response()->json([
-            'message'=>'Deleted Successfully!!'
-        ]);
-        
+            return response()->json([
+                'message' => 'Deleted Successfully!!'
+            ]);
         } catch (\Exception $e) {
-        return response()->json([
-            'message'=> $e
-        ]);}
+            return response()->json([
+                'message' => $e
+            ]);
+        }
     }
 }

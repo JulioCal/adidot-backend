@@ -12,9 +12,25 @@ class GroupController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $group = group::select('*')
+            ->when(
+                $request->has('gerencia'),
+                function ($query) use ($request) {
+                    return $query->where('gerencia', $request->gerencia);
+                }
+            )
+            ->when(
+                $request->has('trabajador'),
+                function ($query) use ($request) {
+                    return $query->where('trabajador_cedula', $request->trabajador);
+                }
+            );
+
+        $group = group::get();
+
+        return $group;
     }
 
     /**
@@ -29,12 +45,12 @@ class GroupController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Display the specified resource.
      *
      * @param  \App\Models\group  $group
      * @return \Illuminate\Http\Response
      */
-    public function edit(group $group)
+    public function show(group $group)
     {
         //
     }
