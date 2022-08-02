@@ -52,7 +52,7 @@ class TrabajadorController extends Controller
      */
     public function index(Request $request)
     {
-        $workers = trabajador::select('*')
+        $workers = trabajador::select('nombre', 'cedula')
             ->when(
                 $request->has('gerencia'),
                 function ($query) use ($request) {
@@ -63,13 +63,6 @@ class TrabajadorController extends Controller
         return $workers;
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -108,7 +101,6 @@ class TrabajadorController extends Controller
      */
     public function show($value)
     {
-
         $trabajador = trabajador::where('cedula', $value)->firstOrFail();
         return $trabajador;
     }
@@ -139,14 +131,14 @@ class TrabajadorController extends Controller
             $request->merge([
                 'password' => $hashed
             ]);
-            /*          $trabajador = trabajador::where('cedula', $value)->firstOrFail();
+            /* $trabajador = trabajador::where('cedula', $value)->firstOrFail();
             $trabajador->fill($request->all());
             //$trabajador->save();
             return response()->json([
                 $trabajador
             ]);*/
             return $request;
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             return response()->json([
                 'message' => $e
             ], 500);

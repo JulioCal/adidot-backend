@@ -6,6 +6,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\TrabajadorController;
 use App\Http\Controllers\GroupController;
+use App\Models\trabajador;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,8 +23,9 @@ Route::post('trabajador/auth', [TrabajadorController::class, 'authenticate']);
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('logout', [TrabajadorController::class, 'logout']);
     Route::get('me', [TrabajadorController::class, 'dataUser']);
+    Route::get('trabajador', [TrabajadorController::class, 'index']);
 });
-Route::post('download', [DocumentController::class,'getFile']);
+Route::post('download', [DocumentController::class, 'getFile']);
 Route::resource('trabajador', TrabajadorController::class);
 Route::resource('comment', CommentController::class);
 Route::resource('document', DocumentController::class);

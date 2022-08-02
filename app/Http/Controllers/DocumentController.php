@@ -17,6 +17,7 @@ class DocumentController extends Controller
     public function index(Request $request)
     {
         $documents = document::select("*")
+            //when has group join 
             ->when(
                 $request->has('owner'),
                 function ($query) use ($request) {
@@ -42,7 +43,7 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
-        $imageName = '';
+        $imageName = null;
         $request->validate([
             'owner' => 'required',
             'title' => 'required',
@@ -82,9 +83,9 @@ class DocumentController extends Controller
      * @param  \App\Models\document  $document
      * @return \Illuminate\Http\Response
      */
-    public function show(document $document)
+    public function show($value)
     {
-        $result = document::find($document);
+        $result = document::where('id', $value)->firstOrFail();
 
         return $result;
     }
@@ -98,23 +99,29 @@ class DocumentController extends Controller
      */
     public function update(Request $request, document $document)
     {
-
+        $imageName = null;
         $request->validate([
             'title' => 'required',
             'permit' => 'required'
         ]);
         try {
-            $validator = Validator::make($request->all(), [
-                'file' => 'required|mimes:doc,docx,pdf,txt,csv,png,jpg,jpeg|max:320480',
-            ]);
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 401);
-            }
-            $path = $request->file('file')->store('public/documentos');
-            $document->file = $path;
+            $request->whenHas(
+                'file',
+                function () use ($request) {
+                    $validator = Validator::make($request->all(), [
+                        'file' => 'mimes:doc,docx,xls,xlsx,ppt,pptx,zip,pdf,txt,csv,png,jpg,jpeg|max:320480',
+                    ]);
+                    if ($validator->fails()) {
+                        return response()->json(['error' => $validator->errors()], 401);
+                    }
+                    $imageName = time() . '.' . $request->file('file')->getClientOriginalExtension();
+                    $request->file('file')->move(public_path('/documentos'), $imageName);
+                }
+            );
+            $document = new document;
             $document->fill($request->all());
+            $document->file = $imageName;
             $document->save();
-
             return response()->json([
                 'message' => 'Publicacion Actualizada.'
             ]);
@@ -131,9 +138,9 @@ class DocumentController extends Controller
      * @param  \App\Models\document  $document
      * @return \Illuminate\Http\Response
      */
-    public function destroy(document $document)
+    public function destroy($value)
     {
-        $result = document::find($document);
+        $result = document::where('id', $value)->firstOrFail();
 
         $result->delete();
 

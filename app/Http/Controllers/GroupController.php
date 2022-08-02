@@ -41,7 +41,7 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return response()->json(['message' => 'there we go!']);
     }
 
     /**
