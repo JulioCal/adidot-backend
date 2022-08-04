@@ -18,19 +18,11 @@ class GroupController extends Controller
     {
         $group = group::select('*')
             ->when(
-                $request->has('gerencia'),
+                $request->has('owner'),
                 function ($query) use ($request) {
-                    return $query->where('gerencia', $request->gerencia);
+                    return $query->where('owner', $request->trabajador);
                 }
-            )
-            ->when(
-                $request->has('trabajador'),
-                function ($query) use ($request) {
-                    return $query->where('trabajador_cedula', $request->trabajador);
-                }
-            );
-
-        $group = group::get();
+            )->get();
 
         return $group;
     }
@@ -45,7 +37,8 @@ class GroupController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'integrantes' => 'required'
+            'integrantes' => 'required',
+            'owner' => 'required',
         ]);
         try {
             $group = new group();
