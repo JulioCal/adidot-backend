@@ -52,7 +52,7 @@ class TrabajadorController extends Controller
      */
     public function index(Request $request)
     {
-        $workers = trabajador::select('nombre', 'cedula')
+        $workers = trabajador::select('*')
             ->when(
                 $request->has('gerencia'),
                 function ($query) use ($request) {
@@ -131,13 +131,12 @@ class TrabajadorController extends Controller
             $request->merge([
                 'password' => $hashed
             ]);
-            /* $trabajador = trabajador::where('cedula', $value)->firstOrFail();
+            $trabajador = trabajador::where('cedula', $value)->firstOrFail();
             $trabajador->fill($request->all());
             //$trabajador->save();
             return response()->json([
                 $trabajador
-            ]);*/
-            return $request;
+            ]);
         } catch (\PDOException $e) {
             return response()->json([
                 'message' => $e

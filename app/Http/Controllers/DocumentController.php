@@ -97,7 +97,7 @@ class DocumentController extends Controller
      * @param  \App\Models\document  $document
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, document $document)
+    public function update(Request $request, $value)
     {
         $imageName = null;
         $request->validate([
@@ -118,7 +118,7 @@ class DocumentController extends Controller
                     $request->file('file')->move(public_path('/documentos'), $imageName);
                 }
             );
-            $document = new document;
+            $document = document::where('id', $value)->firstOrFail();
             $document->fill($request->all());
             $document->file = $imageName;
             $document->save();

@@ -24,7 +24,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('logout', [TrabajadorController::class, 'logout']);
     Route::get('me', [TrabajadorController::class, 'dataUser']);
     Route::get('trabajador', [TrabajadorController::class, 'index']);
+    Route::get('group', [GroupController::class, 'index']);
+    Route::delete('group/{id}', [GroupController::class, 'destroy']);
+    Route::delete('document/{id}', [DocumentController::class, 'destroy']);
 });
+
 Route::post('download', [DocumentController::class, 'getFile']);
 Route::resource('trabajador', TrabajadorController::class);
 Route::resource('comment', CommentController::class);

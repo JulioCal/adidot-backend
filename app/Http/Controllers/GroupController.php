@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\group;
 use Illuminate\Http\Request;
 
+use function GuzzleHttp\Promise\all;
+
 class GroupController extends Controller
 {
     /**
@@ -41,7 +43,20 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
-        return response()->json(['message' => 'there we go!']);
+        $request->validate([
+            'name' => 'required',
+            'integrantes' => 'required'
+        ]);
+        try {
+            $group = new group();
+            $group->fill($request->all());
+            $group->save();
+            return response()->json(['message' => 'Grupo creado con exito!']);
+        } catch (\PDOException $e) {
+            return response()->json([
+                'message' => $e
+            ], 500);
+        }
     }
 
     /**
@@ -62,9 +77,22 @@ class GroupController extends Controller
      * @param  \App\Models\group  $group
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, group $group)
+    public function update(Request $request, $value)
     {
-        //
+        $request->validate([
+            'nombre' => 'required',
+            'integrantes' => 'required'
+        ]);
+        try {
+            $group = group::where('id', $value)->firstOrFail();
+            $group->fill($request->all());
+            $group->save();
+            return response()->json(['message' => 'Grupo actualizado con exito!']);
+        } catch (\PDOException $e) {
+            return response()->json([
+                'message' => $e
+            ], 500);
+        }
     }
 
     /**
@@ -75,6 +103,6 @@ class GroupController extends Controller
      */
     public function destroy(group $group)
     {
-        //
+        return response()->json(['message' => 'we no longer go!']);
     }
 }
