@@ -36,15 +36,20 @@ class GroupController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'nombre' => 'required',
             'integrantes' => 'required',
             'owner' => 'required',
         ]);
         try {
+            $temp = json_decode($request->integrantes);
+
+            $request->merge([
+                'integrantes' => $temp
+            ]);
             $group = new group();
             $group->fill($request->all());
-            $group->save();
-            return response()->json(['message' => 'Grupo creado con exito!']);
+            // $group->save();
+            return $group;
         } catch (\PDOException $e) {
             return response()->json([
                 'message' => $e
