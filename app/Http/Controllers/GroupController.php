@@ -48,8 +48,10 @@ class GroupController extends Controller
             ]);
             $group = new group();
             $group->fill($request->all());
-            // $group->save();
-            return $group;
+            $group->save();
+            return response()->json([
+                'message' => 'Grupo creado satisfactoriamente'
+            ]);
         } catch (\PDOException $e) {
             return response()->json([
                 'message' => $e
