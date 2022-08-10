@@ -10,7 +10,7 @@ class group extends Model
     use HasFactory;
     protected $fillable = [
         'nombre',
-        'owner',
+        'owner_grupo',
         'integrantes',
     ];
     protected $casts = [

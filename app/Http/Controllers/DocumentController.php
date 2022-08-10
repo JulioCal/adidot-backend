@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\document;
+use App\Models\group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Response as HttpResponse;
@@ -21,7 +22,12 @@ class DocumentController extends Controller
             ->when(
                 $request->has('owner'),
                 function ($query) use ($request) {
-                    $query->where('trabajador_cedula', $request->owner)->orWhere('permit', 'public');
+                    $query
+                        ->join("trabajadors as worker", "worker.cedula", "=", "trabajador_cedula")
+                        ->join("groups as gp", "gp.owner_grupo", "=", "trabajador_cedula")
+                        ->whereJsonContains('integrantes->nombre', "trabajadors.gerencia")
+                        ->where('trabajador_cedula', $request->owner);
+                    //->orWhere('permit', 'public') //should be public
                 }
             )
             ->when(

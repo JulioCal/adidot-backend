@@ -20,7 +20,7 @@ class GroupController extends Controller
             ->when(
                 $request->has('owner'),
                 function ($query) use ($request) {
-                    return $query->where('owner', $request->trabajador);
+                    return $query->where('owner_grupo', $request->owner);
                 }
             )->get();
 
@@ -38,7 +38,7 @@ class GroupController extends Controller
         $request->validate([
             'nombre' => 'required',
             'integrantes' => 'required',
-            'owner' => 'required',
+            'owner_grupo' => 'required',
         ]);
         try {
             $temp = json_decode($request->integrantes);

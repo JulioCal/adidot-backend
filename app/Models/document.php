@@ -19,4 +19,7 @@ class document extends Model
         'comments',
         'grupos'
     ];
+    protected $casts = [
+        'grupos' => 'array',
+    ];
 }
