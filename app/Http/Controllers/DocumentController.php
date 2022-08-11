@@ -23,11 +23,12 @@ class DocumentController extends Controller
                 $request->has('owner'),
                 function ($query) use ($request) {
                     $query
-                        ->join("trabajadors as worker", "worker.cedula", "=", "trabajador_cedula")
-                        ->join("groups as gp", "gp.owner_grupo", "=", "trabajador_cedula")
+                        ->leftJoin("trabajadors as worker", "worker.cedula", "=", "trabajador_cedula")
+                        ->leftJoin("groups as gp", "gp.owner_grupo", "=", "trabajador_cedula")
                         ->whereJsonContains('integrantes->nombre', "trabajadors.gerencia")
-                        ->where('trabajador_cedula', $request->owner);
-                    //->orWhere('permit', 'public') //should be public
+                        ->orWhere('trabajador_cedula', $request->owner)
+                        ->orWhere('permit', 'public') //should be public
+                        ->select('documents.*');
                 }
             )
             ->when(
@@ -37,7 +38,7 @@ class DocumentController extends Controller
                 }
             )
             ->get();
-
+        $documents = $documents->unique("document_id");
         return $documents;
     }
 
