@@ -21,5 +21,7 @@ class document extends Model
     ];
     protected $casts = [
         'grupos' => 'array',
+        'comments' => 'array',
     ];
+    protected $primaryKey = 'document_id';
 }

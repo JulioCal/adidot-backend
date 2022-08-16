@@ -41,7 +41,7 @@ class GroupController extends Controller
             'owner_grupo' => 'required',
         ]);
         try {
-            $temp = json_decode($request->integrantes);
+            $temp = json_decode($request->integrantes, true);
 
             $request->merge([
                 'integrantes' => $temp

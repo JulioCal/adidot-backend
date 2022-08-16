@@ -52,7 +52,7 @@ class TrabajadorController extends Controller
      */
     public function index(Request $request)
     {
-        $workers = trabajador::select('*')
+        $workers = trabajador::select('nombre', 'cedula', 'role', 'gerencia')
             ->when(
                 $request->has('gerencia'),
                 function ($query) use ($request) {

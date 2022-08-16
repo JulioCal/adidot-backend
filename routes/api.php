@@ -26,7 +26,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('trabajador', [TrabajadorController::class, 'index']);
     Route::get('group', [GroupController::class, 'index']);
     Route::delete('group/{id}', [GroupController::class, 'destroy']);
-    Route::delete('document/{id}', [DocumentController::class, 'destroy']);
+    Route::delete('document/{document_id}', [DocumentController::class, 'destroy']);
 });
 
 Route::post('download', [DocumentController::class, 'getFile']);

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\document;
-use App\Models\group;
+use App\Models\trabajador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Response as HttpResponse;
@@ -22,10 +22,11 @@ class DocumentController extends Controller
             ->when(
                 $request->has('owner'),
                 function ($query) use ($request) {
+                    $worker = trabajador::where('cedula', $request->owner)->firstOrFail();
                     $query
-                        ->leftJoin("trabajadors as worker", "worker.cedula", "=", "trabajador_cedula")
-                        ->leftJoin("groups as gp", "gp.owner_grupo", "=", "trabajador_cedula")
-                        ->whereJsonContains('integrantes->nombre', "trabajadors.gerencia")
+                        ->whereNotNull("grupos")
+                        ->whereJsonContains("grupos", ['nombre' => $worker->gerencia])
+                        ->orWhereJsonContains("grupos", ['cedula' => $request->owner])
                         ->orWhere('trabajador_cedula', $request->owner)
                         ->orWhere('permit', 'public') //should be public
                         ->select('documents.*');
@@ -57,6 +58,12 @@ class DocumentController extends Controller
             'trabajador_cedula' => 'required'
         ]);
         try {
+            $temp = json_decode($request->grupos, true);
+
+            $request->merge([
+                'grupos' => $temp
+            ]);
+
             $request->whenHas(
                 'file',
                 function () use ($request) {
@@ -92,7 +99,7 @@ class DocumentController extends Controller
      */
     public function show($value)
     {
-        $result = document::where('id', $value)->firstOrFail();
+        $result = document::where("document_id", $value)->firstOrFail();
 
         return $result;
     }
@@ -109,9 +116,15 @@ class DocumentController extends Controller
         $imageName = null;
         $request->validate([
             'title' => 'required',
-            'permit' => 'required'
         ]);
+
         try {
+            $temp = json_decode($request->grupos, true);
+
+            $request->merge([
+                'grupos' => $temp
+            ]);
+
             $request->whenHas(
                 'file',
                 function () use ($request) {
@@ -125,12 +138,12 @@ class DocumentController extends Controller
                     $request->file('file')->move(public_path('/documentos'), $imageName);
                 }
             );
-            $document = document::where('id', $value)->firstOrFail();
+            $document = document::where("document_id", $value)->firstOrFail();
             $document->fill($request->all());
             $document->file = $imageName;
             $document->save();
             return response()->json([
-                'message' => 'Publicacion Actualizada.'
+                'message' => 'Publicacion actualizada'
             ]);
         } catch (\PDOException $e) {
             return response()->json([
@@ -147,7 +160,7 @@ class DocumentController extends Controller
      */
     public function destroy($value)
     {
-        $result = document::where('id', $value)->firstOrFail();
+        $result = document::where("document_id", $value)->firstOrFail();
 
         $result->delete();
 
