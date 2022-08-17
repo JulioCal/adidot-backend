@@ -18,17 +18,16 @@ class DocumentController extends Controller
     public function index(Request $request)
     {
         $documents = document::select("*")
-            //when has group join 
             ->when(
                 $request->has('owner'),
                 function ($query) use ($request) {
                     $worker = trabajador::where('cedula', $request->owner)->firstOrFail();
                     $query
                         ->whereNotNull("grupos")
-                        ->whereJsonContains("grupos", ['nombre' => $worker->gerencia])
-                        ->orWhereJsonContains("grupos", ['cedula' => $request->owner])
-                        ->orWhere('trabajador_cedula', $request->owner)
-                        ->orWhere('permit', 'public') //should be public
+                        ->whereJsonContains("grupos", ['nombre' => $worker->gerencia]) // gets documents where user is member of department
+                        ->orWhereJsonContains("grupos", ['cedula' => $request->owner]) //gets documents where user is in group
+                        ->orWhere('trabajador_cedula', $request->owner) //gets documents where user is owner
+                        ->orWhere('permit', 'public') //gets public documents
                         ->select('documents.*');
                 }
             )
@@ -165,7 +164,7 @@ class DocumentController extends Controller
         $result->delete();
 
         return response()->json([
-            'message' => 'Deleted Successfully!!'
+            'message' => 'Deleted'
         ]);
     }
 

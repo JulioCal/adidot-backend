@@ -16,12 +16,10 @@ class document extends Model
         'trabajador_cedula',
         'permit',
         'owner',
-        'comments',
         'grupos'
     ];
     protected $casts = [
         'grupos' => 'array',
-        'comments' => 'array',
     ];
     protected $primaryKey = 'document_id';
 }

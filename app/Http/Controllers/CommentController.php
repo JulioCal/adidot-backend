@@ -8,15 +8,22 @@ use Illuminate\Support\Facades\DB;
 
 class CommentController extends Controller
 {
-    /**
+    /** 
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $comment = DB::table('comments')->get();
-
+        $comment = Comment::select('*')
+            ->when(
+                $request->has('document'),
+                function ($query) use ($request) {
+                    $query
+                        ->where('document_id', $request->document);
+                }
+            )
+            ->get();
         return $comment;
     }
 
@@ -27,21 +34,24 @@ class CommentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {   
+    {
         $request->validate([
             'owner' => 'required',
             'comment' => 'required',
-            'parent'  => 'required',
+            'document_id'  => 'required',
         ]);
 
-        try{
+        try {
+            $comment = new Comment;
+            $comment->fill($request->all());
+            $comment->save();
             return response()->json([
-                'message'=>' Created Successfully!!'
+                'message' => 'Comentario añadido al sistema'
             ]);
-            }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
-                'message'=>'Something went wrong while creating!!'
-            ],500);
+                'message' => 'Ocurrió un error al procesar el comentario'
+            ], 500);
         }
     }
 
@@ -53,9 +63,7 @@ class CommentController extends Controller
      */
     public function show(Comment $comment)
     {
-        return response()->json([
-            'trabajador'=>$comment
-        ]);
+        //
     }
 
     /**
@@ -66,26 +74,8 @@ class CommentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Comment $comment)
-    {  
-         $request->validate([
-        'owner' => 'required',
-        'comment' => 'required',
-        'parent'  => 'required',
-        ]);
-
-        try{
-
-            $comment->fill($request->post())->update();
-
-            return response()->json([
-                'message'=>'Updated Successfully!!'
-            ]);
-
-        }catch(\Exception $e){
-              return response()->json([
-                'message'=>'Something went wrong!!'
-            ],500);
-        }
+    {
+        //editar comentarios?
     }
 
     /**
@@ -94,18 +84,20 @@ class CommentController extends Controller
      * @param  \App\Models\Comment  $comment
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Comment $comment)
+    public function destroy($value)
     {
+        $result = Comment::where("id", $value)->firstOrFail();
+
         try {
-            $comment->delete();
-    
+            $result->delete();
+
             return response()->json([
-                'message'=>'Deleted Successfully!!'
+                'message' => 'Comentario erradicado'
             ]);
-            
-            } catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
-                'message'=>'Something went wrong while deleting!!'
-            ]);}
+                'message' => 'Ocurrio un problema eliminando el comentario.'
+            ]);
+        }
     }
 }

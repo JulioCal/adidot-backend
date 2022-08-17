@@ -10,7 +10,8 @@ class Comment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'parent',
+        'document_id',
         'owner',
-        'comment'];
+        'comment'
+    ];
 }

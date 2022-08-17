@@ -101,8 +101,20 @@ class GroupController extends Controller
      * @param  \App\Models\group  $group
      * @return \Illuminate\Http\Response
      */
-    public function destroy(group $group)
+    public function destroy($value)
     {
-        return response()->json(['message' => 'we no longer go!']);
+        $result = group::where("id", $value)->firstOrFail();
+
+        try {
+            $result->delete();
+
+            return response()->json([
+                'message' => 'Grupo erradicado'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ocurrio un problema eliminando el grupo.'
+            ]);
+        }
     }
 }
