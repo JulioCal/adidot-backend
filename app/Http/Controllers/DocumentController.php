@@ -6,7 +6,6 @@ use App\Models\document;
 use App\Models\trabajador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Response as HttpResponse;
 
 class DocumentController extends Controller
 {
@@ -23,10 +22,9 @@ class DocumentController extends Controller
                 function ($query) use ($request) {
                     $worker = trabajador::where('cedula', $request->owner)->firstOrFail();
                     $query
-                        ->whereNotNull("grupos")
-                        ->whereJsonContains("grupos", ['nombre' => $worker->gerencia]) // gets documents where user is member of department
+                        ->where('trabajador_cedula', $request->owner) //gets documents where user is owner
+                        ->orWhereJsonContains("grupos", ['nombre' => $worker->gerencia]) // gets documents where user is member of department
                         ->orWhereJsonContains("grupos", ['cedula' => $request->owner]) //gets documents where user is in group
-                        ->orWhere('trabajador_cedula', $request->owner) //gets documents where user is owner
                         ->orWhere('permit', 'public') //gets public documents
                         ->select('documents.*');
                 }
@@ -35,6 +33,12 @@ class DocumentController extends Controller
                 $request->has('permit') == 'public',
                 function ($query) use ($request) {
                     $query->where('permit', $request->permit);
+                }
+            )
+            ->when(
+                $request->has('permiso') == 'private',
+                function ($query) use ($request) {
+                    $query->where('trabajador_cedula', $request->user);
                 }
             )
             ->get();

@@ -1,12 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\TrabajadorController;
 use App\Http\Controllers\GroupController;
-use App\Models\trabajador;
+use App\Http\Controllers\MailController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +18,7 @@ use App\Models\trabajador;
 |
 */
 
+Route::post('mail/send', [MailController::class, 'send']);
 Route::post('trabajador/auth', [TrabajadorController::class, 'authenticate']);
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('logout', [TrabajadorController::class, 'logout']);

@@ -114,28 +114,18 @@ class TrabajadorController extends Controller
      */
     public function update(Request $request, $value)
     {
-
-
-        $request->validate([
-            'nombre' => 'required',
-            'cedula' => 'required',
-            'email'  => 'required',
-            'password' => 'required',
-            'role' => 'required',
-            'sexo' => 'required'
-        ]);
-
         try {
-
-            $hashed = Hash::make($request->password);
-            $request->merge([
-                'password' => $hashed
-            ]);
+            $request->whenHas('password', function () use ($request) {
+                $hashed = Hash::make($request->password);
+                $request->merge([
+                    'password' => $hashed
+                ]);
+            });
             $trabajador = trabajador::where('cedula', $value)->firstOrFail();
             $trabajador->fill($request->all());
-            //$trabajador->save();
+            $trabajador->save();
             return response()->json([
-                $trabajador
+                'message' => 'Datos Actualizados.'
             ]);
         } catch (\PDOException $e) {
             return response()->json([

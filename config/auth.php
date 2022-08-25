@@ -91,7 +91,7 @@ return [
     */
 
     'passwords' => [
-        'users' => [
+        'trabajadors' => [
             'provider' => 'trabajadors',
             'table' => 'password_resets',
             'expire' => 60,
