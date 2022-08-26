@@ -16,7 +16,7 @@ class trabajador extends Authenticatable
 
     public $incrementing = false;
 
-    protected $fillable = ['nombre','cedula','email','password','role','sexo','direccion','estatus','gerencia'];
+    protected $fillable = ['nombre', 'cedula', 'email', 'password', 'role', 'sexo', 'direccion', 'estatus', 'gerencia'];
 
     protected $hidden = [
         'password', 'remember_token'

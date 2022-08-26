@@ -20,17 +20,19 @@ use App\Http\Controllers\MailController;
 
 Route::post('mail/send', [MailController::class, 'send']);
 Route::post('trabajador/auth', [TrabajadorController::class, 'authenticate']);
+Route::post('trabajador', [TrabajadorController::class, 'store']);
+Route::post('trabajador/password/reset', [TrabajadorController::class, 'passwordReset']);
+
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('logout', [TrabajadorController::class, 'logout']);
     Route::get('me', [TrabajadorController::class, 'dataUser']);
-    Route::get('trabajador', [TrabajadorController::class, 'index']);
     Route::get('group', [GroupController::class, 'index']);
     Route::delete('group/{id}', [GroupController::class, 'destroy']);
     Route::delete('document/{document_id}', [DocumentController::class, 'destroy']);
+    Route::resource('trabajador', TrabajadorController::class);
 });
 
 Route::post('download', [DocumentController::class, 'getFile']);
-Route::resource('trabajador', TrabajadorController::class);
 Route::resource('comment', CommentController::class);
 Route::resource('document', DocumentController::class);
 Route::resource('group', GroupController::class);

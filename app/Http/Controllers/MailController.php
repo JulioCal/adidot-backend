@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Mail\RecoveryMail;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Mail\Message;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +14,6 @@ class MailController extends Controller
 {
     public function send(Request $request)
     {
-
-
         $objDemo = new \stdClass();
         $objDemo->sender = 'Corpozulia@Adidot';
         $objDemo->receiver = 'ReceiverUserName';
@@ -40,7 +37,7 @@ class MailController extends Controller
 
         try {
 
-            // Mail::to($user->email)->send(new RecoveryMail($objDemo), ['token' => $token]);
+            Mail::to($user->email)->send(new RecoveryMail($objDemo), ['token' => $token]);
 
             return response()->json([
                 'message' => $objDemo->link

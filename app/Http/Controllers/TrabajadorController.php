@@ -6,7 +6,7 @@ use App\Models\trabajador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 
 class TrabajadorController extends Controller
 {
@@ -126,6 +126,31 @@ class TrabajadorController extends Controller
             $trabajador->save();
             return response()->json([
                 'message' => 'Datos Actualizados.'
+            ]);
+        } catch (\PDOException $e) {
+            return response()->json([
+                'message' => $e
+            ], 500);
+        }
+    }
+
+    public function passwordReset(Request $request)
+    {
+        $request->whenHas('password', function () use ($request) {
+            $hashed = Hash::make($request->password);
+            $request->merge([
+                'password' => $hashed
+            ]);
+        });
+
+        try {
+            $user = DB::table('password_resets')->where('token', $request->token)->first();
+            $trabajador = trabajador::where('email', $user->email)->firstOrFail();
+            $trabajador->fill($request->only('password'));
+            $trabajador->save();
+            DB::table('password_resets')->where('token', $request->token)->delete();
+            return response()->json([
+                'message' => 'Contraseña Actualizada'
             ]);
         } catch (\PDOException $e) {
             return response()->json([
