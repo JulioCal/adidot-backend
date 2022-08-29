@@ -40,7 +40,7 @@ class MailController extends Controller
             Mail::to($user->email)->send(new RecoveryMail($objDemo), ['token' => $token]);
 
             return response()->json([
-                'message' => $objDemo->link
+                'message' => 'Mensaje enviado'
             ]);
         } catch (\PDOException $e) {
             return response()->json([
