@@ -109,7 +109,7 @@ class GroupController extends Controller
             $result->delete();
 
             return response()->json([
-                'message' => 'Grupo erradicado'
+                'message' => 'Grupo borrado'
             ]);
         } catch (\Exception $e) {
             return response()->json([

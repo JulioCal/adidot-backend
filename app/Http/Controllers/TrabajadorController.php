@@ -84,7 +84,7 @@ class TrabajadorController extends Controller
             $trabajador->fill($request->all());
             $trabajador->save();
             return response()->json([
-                'message' => 'completado. '
+                'message' => 'Registro completado.'
             ]);
         } catch (\PDOException $e) {
             return response()->json([
@@ -125,7 +125,7 @@ class TrabajadorController extends Controller
             $trabajador->fill($request->all());
             $trabajador->save();
             return response()->json([
-                'message' => 'Datos Actualizados.'
+                'message' => 'Registro Actualizado.'
             ]);
         } catch (\PDOException $e) {
             return response()->json([
@@ -172,7 +172,7 @@ class TrabajadorController extends Controller
             $trabajador->delete();
 
             return response()->json([
-                'message' => 'Deleted Successfully!!'
+                'message' => 'Registro borrado'
             ]);
         } catch (\Exception $e) {
             return response()->json([
